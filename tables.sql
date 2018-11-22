@@ -1,3 +1,6 @@
+/*
+QUESTIONS TABLE
+*/
 CREATE TABLE `questions` (
   `question_id` int(11) NOT NULL,
   `is_answered` int(11) DEFAULT NULL,
@@ -11,6 +14,23 @@ CREATE TABLE `questions` (
   PRIMARY KEY (`question_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+/*
+TAGS TABLE
+*/
+CREATE TABLE tags (
+     tag_id CHAR(64) NOT NULL UNIQUE,
+     PRIMARY KEY (tag_id)
+);
+
+/*
+ASSOC TABLE
+*/
+CREATE TABLE questions_tags (
+    question_id INT(11),
+    tag_id CHAR(64),
+    INDEX q_ind (question_id),
+    INDEX t_ind (tag_id),
+) 
 
 Create View `answering_success_monthly` AS select year(`so_dashboard`.`questions`.`creation_date`) AS `Year`,month(`so_dashboard`.`questions`.`creation_date`) AS `Month`,sum(`so_dashboard`.`questions`.`is_answered`) AS `answered`,count(0) AS `total`,(count(0) - sum(`so_dashboard`.`questions`.`is_answered`)) AS `diff` from `so_dashboard`.`questions` group by `Year`,`Month` order by `so_dashboard`.`questions`.`creation_date`;
 
@@ -58,39 +78,3 @@ group by tag_id
 
 SET FOREIGN_KEY_CHECKS = 0;
 SET FOREIGN_KEY_CHECKS = 1;
-
-
-/*
-TAGS TABLE
-*/
-
-CREATE TABLE tags (
-     tag_id CHAR(64) NOT NULL UNIQUE,
-     PRIMARY KEY (tag_id)
-);
-
-CREATE TABLE questions_tags (
-    question_id INT(11),
-    tag_id CHAR(64),
-    INDEX q_ind (question_id),
-    INDEX t_ind (tag_id),
-) 
-
-select count(tmp.tag_id), tmp.tag_id 
-from(
-SELECT JSON_SEARCH(q.tags, 'one', 'alibaba-cloud-rds') as hit, qt.tag_id
-from questions q, questions_tags qt
-where q.question_id = qt.question_id) as tmp
-where tmp.hit IS NOT NULL
-group by tag_id
-
-
-select count(tmp.tag_id), tmp.tag_id 
-from(
-SELECT JSON_SEARCH(q.tags, 'one', 'alibaba-cloud-ecs') as hit, qt.tag_id
-from questions q, questions_tags qt
-where q.question_id = qt.question_id) as tmp
-where tmp.hit IS NOT NULL AND
-tmp.tag_id <> 'alibaba-cloud' AND
-tmp.tag_id <> 'alibaba-cloud-ecs'
-group by tag_id

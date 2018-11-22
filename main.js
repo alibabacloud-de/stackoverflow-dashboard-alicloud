@@ -26,7 +26,7 @@ const BbPromise = require('bluebird');
             return mysql.createConnection({
                 host: 'rm-4xowqez7h3826v706ko.mysql.germany.rds.aliyuncs.com',
                 user: 'so',
-                password: '!QAYxsw2',
+                password: '<insert here>',
                 database: 'so_dashboard'
             })
             .then((conn) => {
